@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{B1C2D3E4-F5A6-7890-BCDE-FA1234567890}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>HeelsSettings</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)..\HeelsSettings\HeelsPlugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\HeelsSettings\HeelsController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\HeelsSettings\HeelsSettingsWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\HeelsSettings\HeelsStudioOverlay.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\HeelsSettings\HeelsStudioTreePatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\Properties\HeelsAssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)..\Resources\image\toolbar_icon.png" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)..\Resources\image\tree_toggle.png" />
+  </ItemGroup>
+</Project>
