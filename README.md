@@ -20,12 +20,18 @@ PowerShell 7 and a compatible .NET SDK are required. The shared script restores,
 
 The release version must match `HeelsPlugin.PluginVersion`. Development packages can use `dev` or a value beginning with `ci-`. Generated archives are written under `artifacts` and are ignored by Git.
 
-## Self-hosted GitHub Actions runner
+## Manual GitHub Release
 
-The workflow deliberately builds only on a self-hosted Windows x64 runner so reference DLLs remain on the local machine. In the repository settings, open Actions, then Runners, add a Windows x64 runner, and assign the custom label `heels-build`. Install and run it using the commands GitHub generates for that repository.
+Reference DLLs remain local and GitHub Actions does not build this project. Run the packaging script locally, review the two archives under `artifacts`, then create and push a version tag. The tag version and package version must match `HeelsPlugin.PluginVersion`.
 
-Create a repository Actions variable named `REFERENCE_ROOT`. Its value must be an absolute directory path visible to the Windows account running the runner service. That path is passed to MSBuild; the workflow never uploads the reference directory.
+```powershell
+git tag v1.0.0
+git push origin v1.0.0
 
-Branch pushes and manual workflow runs build both packages. Pushing a tag such as `v1.0.0` builds the packages and creates a GitHub Release with generated notes. The tag version must match the plugin version, otherwise the build stops before publishing.
+gh release create v1.0.0 `
+  artifacts\KK_HeelsSettings-v1.0.0.zip `
+  artifacts\KKS_HeelsSettings-v1.0.0.zip `
+  --verify-tag --generate-notes --title v1.0.0
+```
 
-For safety, pull requests do not directly execute on the self-hosted runner. Review external contributions before merging or manually running their code on the machine.
+This publishes only the two installation archives. Game assemblies and build references remain outside the repository and are never uploaded.
