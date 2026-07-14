@@ -3,17 +3,14 @@
     <AssemblyName>KKS_HeelsSettings</AssemblyName>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <TargetFramework>net46</TargetFramework>
-    <LangVersion>9.0</LangVersion>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <DefineConstants>KKS</DefineConstants>
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="**\*" />
   </ItemGroup>
   <Import Project="..\HeelsSettings.Core\HeelsSettings.Core.projitems" Label="Shared" />
   <ItemGroup>
-    <Compile Include="..\..\dlls\kks\plugins\ConfigurationManager\ConfigurationManagerAttributes.cs" />
+    <Compile Include="$(ReferenceRoot)\kks\plugins\ConfigurationManager\ConfigurationManagerAttributes.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
@@ -21,67 +18,67 @@
   <ItemGroup>
     <Reference Include="System.Core" />
     <Reference Include="BepInEx">
-      <HintPath>..\..\dlls\kks\core\BepInEx.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\core\BepInEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>..\..\dlls\kks\core\0Harmony.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\core\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp" Publicize="true">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UniRx">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\UniRx.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\UniRx.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="KKAPI">
-      <HintPath>..\..\dlls\kks\plugins\KKSAPI.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\plugins\KKSAPI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="KKABMX">
-      <HintPath>..\..\dlls\kks\plugins\KKSABMX.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\plugins\KKSABMX.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="ExtensibleSaveFormat">
-      <HintPath>..\..\dlls\kks\plugins\KKS_BepisPlugins\KKS_ExtensibleSaveFormat.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\plugins\KKS_BepisPlugins\KKS_ExtensibleSaveFormat.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MessagePack">
-      <HintPath>..\..\dlls\kks\KoikatsuSunshine_Data\Managed\MessagePack.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\MessagePack.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

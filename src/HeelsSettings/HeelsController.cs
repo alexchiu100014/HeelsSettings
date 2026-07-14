@@ -102,7 +102,7 @@ namespace HeelsSettings
             int coord = ActiveCoordinate;
             _coordData.Remove(coord);
 
-            var ext = GetCoordinateExtendedDataById(coordinate, BssExtDataKey);
+            var ext = ExtendedSave.GetExtendedDataById(coordinate, BssExtDataKey);
             if (ext?.data != null)
                 LoadCoordFromBssRules(ext, coord);
 
@@ -125,20 +125,7 @@ namespace HeelsSettings
             {
                 var ext = ExtendedSave.GetExtendedDataById(source, BssExtDataKey);
                 if (ext?.data == null) return;
-
-                if (!ext.data.TryGetValue(BssRuleListKey, out var obj) || !(obj is byte[] bytes))
-                    return;
-
-                var rules = MessagePackSerializer.Deserialize<List<BssRule>>(bytes);
-                if (rules == null) return;
-
-                foreach (var rule in rules)
-                {
-                    if (rule.Name == null || !HeelBoneNames.Contains(rule.Name)) continue;
-                    if (rule.Modifier == null) continue;
-
-                    ExtractHeelValue(rule);
-                }
+                LoadHeelRulesFromPluginData(ext, -1);
             }
             catch (Exception ex)
             {
@@ -150,21 +137,32 @@ namespace HeelsSettings
         {
             try
             {
-                if (!ext.data.TryGetValue(BssRuleListKey, out var obj) || !(obj is byte[] bytes))
-                    return;
+                LoadHeelRulesFromPluginData(ext, coord);
+            }
+            catch (Exception ex)
+            {
+                HeelsPlugin.Logger.LogWarning($"Failed to read coordinate BonerStateSync data: {ex.Message}");
+            }
+        }
 
-                var rules = MessagePackSerializer.Deserialize<List<BssRule>>(bytes);
-                if (rules == null) return;
+        private void LoadHeelRulesFromPluginData(PluginData ext, int coordOverride)
+        {
+            if (!ext.data.TryGetValue(BssRuleListKey, out var obj) || !(obj is byte[] bytes))
+                return;
 
-                foreach (var rule in rules)
+            var rules = MessagePackSerializer.Deserialize<List<BssRule>>(bytes);
+            if (rules == null) return;
+
+            foreach (var rule in rules)
+            {
+                if (!IsManagedHeelRule(rule)) continue;
+                if (rule.Modifier == null) continue;
+
+                if (coordOverride >= 0)
                 {
-                    if (rule.Name == null || !HeelBoneNames.Contains(rule.Name)) continue;
-                    if (rule.Modifier == null) continue;
-
-                    // Coordinate-level rules are stored with coord normalized to 0.
                     var patched = new BssRule
                     {
-                        Coordinate = coord,
+                        Coordinate = coordOverride,
                         Slot = rule.Slot,
                         State = rule.State,
                         Name = rule.Name,
@@ -173,16 +171,11 @@ namespace HeelsSettings
                     };
                     ExtractHeelValue(patched);
                 }
+                else
+                {
+                    ExtractHeelValue(rule);
+                }
             }
-            catch (Exception ex)
-            {
-                HeelsPlugin.Logger.LogWarning($"Failed to read coordinate BonerStateSync data: {ex.Message}");
-            }
-        }
-
-        private PluginData GetCoordinateExtendedDataById(ChaFileCoordinate coordinate, string id)
-        {
-            return ExtendedSave.GetExtendedDataById(coordinate, id);
         }
 
         private void ExtractHeelValue(BssRule rule)
@@ -219,29 +212,8 @@ namespace HeelsSettings
         {
             try
             {
-                // Read existing non-heel rules so we preserve them.
-                List<BssRule> existing = null;
                 var ext = ExtendedSave.GetExtendedDataById(ChaFileControl, BssExtDataKey);
-                if (ext?.data != null && ext.data.TryGetValue(BssRuleListKey, out var obj) && obj is byte[] existingBytes)
-                {
-                    try { existing = MessagePackSerializer.Deserialize<List<BssRule>>(existingBytes); }
-                    catch { existing = null; }
-                }
-
-                var rules = existing?.Where(r => r.Name == null || !HeelBoneNames.Contains(r.Name)).ToList()
-                            ?? new List<BssRule>();
-
-                // Add our heel rules.
-                rules.AddRange(BuildHeelRules());
-
-                if (rules.Count == 0)
-                {
-                    ExtendedSave.SetExtendedDataById(ChaFileControl, BssExtDataKey, null);
-                    return;
-                }
-
-                var payload = new PluginData { version = 1 };
-                payload.data[BssRuleListKey] = MessagePackSerializer.Serialize(rules);
+                var payload = MergeBssRules(ext, BuildHeelRules());
                 ExtendedSave.SetExtendedDataById(ChaFileControl, BssExtDataKey, payload);
             }
             catch (Exception ex)
@@ -254,33 +226,64 @@ namespace HeelsSettings
         {
             try
             {
-                List<BssRule> existing = null;
-                var ext = GetCoordinateExtendedDataById(coordinate, BssExtDataKey);
-                if (ext?.data != null && ext.data.TryGetValue(BssRuleListKey, out var obj) && obj is byte[] existingBytes)
-                {
-                    try { existing = MessagePackSerializer.Deserialize<List<BssRule>>(existingBytes); }
-                    catch { existing = null; }
-                }
-
-                var rules = existing?.Where(r => r.Name == null || !HeelBoneNames.Contains(r.Name)).ToList()
-                            ?? new List<BssRule>();
-
-                rules.AddRange(BuildCoordRules(coord, 0));
-
-                if (rules.Count == 0)
-                {
-                    ExtendedSave.SetExtendedDataById(coordinate, BssExtDataKey, null);
-                    return;
-                }
-
-                var payload = new PluginData { version = 1 };
-                payload.data[BssRuleListKey] = MessagePackSerializer.Serialize(rules);
+                var ext = ExtendedSave.GetExtendedDataById(coordinate, BssExtDataKey);
+                var payload = MergeBssRules(ext, BuildCoordRules(coord, 0));
                 ExtendedSave.SetExtendedDataById(coordinate, BssExtDataKey, payload);
             }
             catch (Exception ex)
             {
                 HeelsPlugin.Logger.LogWarning($"Failed to write coordinate BonerStateSync data: {ex.Message}");
             }
+        }
+
+        private PluginData MergeBssRules(PluginData existing, List<BssRule> newRules)
+        {
+            var payload = new PluginData { version = existing == null ? 1 : existing.version };
+            if (existing?.data != null)
+            {
+                foreach (var pair in existing.data)
+                    payload.data[pair.Key] = pair.Value;
+            }
+
+            List<BssRule> previous = null;
+            if (payload.data.TryGetValue(BssRuleListKey, out var obj))
+            {
+                if (!(obj is byte[] bytes))
+                    throw new InvalidOperationException("BonerStateSync rule data has an unexpected format; save was cancelled.");
+
+                try
+                {
+                    previous = MessagePackSerializer.Deserialize<List<BssRule>>(bytes);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException("BonerStateSync rule data could not be read; save was cancelled.", ex);
+                }
+            }
+
+            var rules = previous?.Where(r => !IsManagedHeelRule(r)).ToList()
+                        ?? new List<BssRule>();
+            rules.AddRange(newRules);
+
+            if (rules.Count == 0)
+                payload.data.Remove(BssRuleListKey);
+            else
+                payload.data[BssRuleListKey] = MessagePackSerializer.Serialize(rules);
+
+            return payload.data.Count == 0 ? null : payload;
+        }
+
+        private static bool IsManagedHeelRule(BssRule rule)
+        {
+            if (rule == null || rule.Name == null || !HeelBoneNames.Contains(rule.Name))
+                return false;
+            if (rule.State != 0 || rule.Priority != 0)
+                return false;
+
+            if (rule.Name == HeightBone && rule.Coordinate == -1 && rule.Slot == -1)
+                return true;
+
+            return rule.Coordinate >= 0 && HeelsPlugin.IsShoeSlot(rule.Slot);
         }
 
         private List<BssRule> BuildHeelRules()
@@ -423,33 +426,20 @@ namespace HeelsSettings
 
         // ---- ABMX helpers ----
 
-        private static void SetRotationX(BoneController abmx, string boneName, int coord, float value)
+        internal static void SetRotationX(BoneController abmx, string boneName, int coord, float value)
         {
-            var mod = EnsureModifier(abmx, boneName);
-            if (mod == null) return;
+            var mod = abmx.GetOrAddModifier(boneName, BoneLocation.BodyTop);
             var data = GetModData(mod, coord);
             if (data == null) return;
             data.RotationModifier = new Vector3(value, data.RotationModifier.y, data.RotationModifier.z);
         }
 
-        private static void SetPositionY(BoneController abmx, string boneName, int coord, float value)
+        internal static void SetPositionY(BoneController abmx, string boneName, int coord, float value)
         {
-            var mod = EnsureModifier(abmx, boneName);
-            if (mod == null) return;
+            var mod = abmx.GetOrAddModifier(boneName, BoneLocation.BodyTop);
             var data = GetModData(mod, coord);
             if (data == null) return;
             data.PositionModifier = new Vector3(data.PositionModifier.x, value, data.PositionModifier.z);
-        }
-
-        private static BoneModifier EnsureModifier(BoneController abmx, string boneName)
-        {
-            var mod = abmx.GetModifier(boneName);
-            if (mod == null)
-            {
-                abmx.AddModifier(new BoneModifier(boneName));
-                mod = abmx.GetModifier(boneName);
-            }
-            return mod;
         }
 
         internal static BoneModifierData GetModData(BoneModifier mod, int coord)

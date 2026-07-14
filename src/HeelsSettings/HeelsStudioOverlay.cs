@@ -147,10 +147,6 @@ namespace HeelsSettings
                 var staleButton = toggle.GetComponent<Button>();
                 if (staleButton != null) DestroyImmediate(staleButton);
 
-                var image = toggle.GetComponent<Image>();
-                if (image != null && _spriteOn != null)
-                    image.sprite = _spriteOn;
-
                 var button = toggle.AddComponent<Button>();
                 button.onClick.AddListener(() => OnCharacterToggleClicked(oci, node));
 
@@ -168,9 +164,12 @@ namespace HeelsSettings
                 toggle.transform.localPosition = new Vector3(x, 0f, 0f);
                 toggle.SetActive(HeelsPlugin.GlobalEnabled);
 
-                CharacterEnabled[oci] = true;
+                var ctrl = HeelsPlugin.GetController(oci.charInfo);
+                bool enabled = ctrl == null || ctrl.TriggerEnabled;
+                CharacterEnabled[oci] = enabled;
                 _toggleObjects[node] = toggle;
                 _nodeCharacters[node] = oci;
+                SetToggleSprite(toggle, enabled);
 
                 node.RecalcSelectButtonPos();
             }
@@ -189,7 +188,10 @@ namespace HeelsSettings
                 var ctrl = HeelsPlugin.GetController(pair.Key.charInfo);
                 if (ctrl == null) continue;
 
-                ctrl.RefreshShoeState();
+                if (active)
+                    ctrl.RefreshShoeState();
+                else
+                    ctrl.ClearFromABMX();
             }
 
             foreach (var pair in _toggleObjects)
@@ -231,21 +233,9 @@ namespace HeelsSettings
                 return;
             }
 
+            // Setting Value=false triggers OnMasterToggle(false), including the
+            // unconditional ABMX clear required by the right-click hard reset.
             _toolbarToggle.Value = false;
-            HeelsPlugin.GlobalEnabled = false;
-
-            foreach (var pair in CharacterEnabled.ToList())
-            {
-                var ctrl = HeelsPlugin.GetController(pair.Key.charInfo);
-                ctrl?.ClearFromABMX();
-            }
-
-            foreach (var pair in _toggleObjects)
-            {
-                if (pair.Value == null) continue;
-                pair.Value.SetActive(false);
-                pair.Key?.RecalcSelectButtonPos();
-            }
         }
 
         private void OnCharacterToggleClicked(OCIChar oci, TreeNodeObject node)
@@ -284,18 +274,6 @@ namespace HeelsSettings
             var image = toggle?.GetComponent<Image>();
             if (image != null)
                 image.sprite = enabled ? _spriteOn : _spriteOff;
-        }
-
-        internal static bool ShouldApplyToCharacter(ChaControl chaCtrl)
-        {
-            if (!HeelsPlugin.GlobalEnabled) return false;
-
-            foreach (var pair in CharacterEnabled)
-            {
-                if (pair.Key != null && pair.Key.charInfo == chaCtrl)
-                    return pair.Value;
-            }
-            return true;
         }
 
         private static OCIChar ResolveCharacter(TreeNodeObject node)

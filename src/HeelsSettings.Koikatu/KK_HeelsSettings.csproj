@@ -3,17 +3,14 @@
     <AssemblyName>KK_HeelsSettings</AssemblyName>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <TargetFramework>net35</TargetFramework>
-    <LangVersion>9.0</LangVersion>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <DefineConstants>KK</DefineConstants>
-    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="**\*" />
   </ItemGroup>
   <Import Project="..\HeelsSettings.Core\HeelsSettings.Core.projitems" Label="Shared" />
   <ItemGroup>
-    <Compile Include="..\..\dlls\kk\plugins\ConfigurationManager\ConfigurationManagerAttributes.cs" />
+    <Compile Include="$(ReferenceRoot)\kk\plugins\ConfigurationManager\ConfigurationManagerAttributes.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
@@ -21,43 +18,43 @@
   <ItemGroup>
     <Reference Include="System.Core" />
     <Reference Include="BepInEx">
-      <HintPath>..\..\dlls\kk\BepInEx.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\BepInEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>..\..\dlls\kk\0Harmony.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp" Publicize="true">
-      <HintPath>..\..\dlls\kk\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\dlls\kk\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\dlls\kk\UnityEngine.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\dlls\kk\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="KKAPI">
-      <HintPath>..\..\dlls\kk\KKAPI.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\KKAPI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="KKABMX">
-      <HintPath>..\..\dlls\kk\KKABMX.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\KKABMX.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="ExtensibleSaveFormat">
-      <HintPath>..\..\dlls\kk\ExtensibleSaveFormat.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\ExtensibleSaveFormat.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MessagePack">
-      <HintPath>..\..\dlls\kk\MessagePack.dll</HintPath>
+      <HintPath>$(ReferenceRoot)\kk\MessagePack.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
