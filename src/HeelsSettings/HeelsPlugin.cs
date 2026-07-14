@@ -14,15 +14,9 @@ using UnityEngine;
 
 namespace HeelsSettings
 {
-#if KKS
     [BepInPlugin(GUID, PluginName, PluginVersion)]
     [BepInDependency(KoikatuAPI.GUID, "1.37.0")]
     [BepInDependency("KKABMX.Core", "5.0")]
-#else
-    [BepInPlugin(GUID, PluginName, PluginVersion)]
-    [BepInDependency(KoikatuAPI.GUID, "1.37.0")]
-    [BepInDependency("KKABMX.Core", "5.0")]
-#endif
     public class HeelsPlugin : BaseUnityPlugin
     {
 #if KKS
@@ -152,12 +146,7 @@ namespace HeelsSettings
 
         // ---- Harmony patches ----
 
-        internal static bool IsShoeSlot(int slot)
-        {
-            foreach (int s in ShoeSlots)
-                if (s == slot) return true;
-            return false;
-        }
+        internal static bool IsShoeSlot(int slot) => Array.IndexOf(ShoeSlots, slot) >= 0;
 
         internal static HeelsController GetController(ChaControl cha)
         {

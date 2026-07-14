@@ -43,6 +43,7 @@ namespace HeelsSettings
             new EntryDef("Height (Body)",       -1, false, HeightMin, HeightMax, PosStep),
         };
 
+        private static readonly string[] ControlNames = BuildControlNames();
         private readonly float[] _values = new float[Entries.Length];
         private readonly string[] _textBuf = new string[Entries.Length];
         private readonly bool[] _editing = new bool[Entries.Length];
@@ -54,6 +55,7 @@ namespace HeelsSettings
         private GUIStyle _boldLabel;
         private bool _stylesReady;
         private bool _showCoordDropdown;
+        private int _displayedCoordinate = -1;
 
         private HeelsController _ctrl;
         private BoneController _abmx;
@@ -85,8 +87,18 @@ namespace HeelsSettings
         private void RefreshReferences()
         {
             var cha = MakerAPI.GetCharacterControl();
-            if (cha == null) { _ctrl = null; _abmx = null; return; }
-            _ctrl = cha.gameObject.GetComponent<HeelsController>();
+            if (cha == null)
+            {
+                _ctrl = null;
+                _abmx = null;
+                _displayedCoordinate = -1;
+                return;
+            }
+
+            var nextController = cha.gameObject.GetComponent<HeelsController>();
+            if (!ReferenceEquals(nextController, _ctrl))
+                _displayedCoordinate = -1;
+            _ctrl = nextController;
             _abmx = cha.gameObject.GetComponent<BoneController>();
         }
 
@@ -134,6 +146,9 @@ namespace HeelsSettings
                 return;
             }
 
+            if (_displayedCoordinate != _ctrl.ActiveCoordinate)
+                ReadCurrentValues();
+
             for (int i = 0; i < Entries.Length; i++)
                 DrawEntry(i);
 
@@ -164,7 +179,7 @@ namespace HeelsSettings
                 _textBuf[i] = FormatValue(_values[i], def.IsRotation);
             }
 
-            string controlName = "hsTF" + i;
+            string controlName = ControlNames[i];
             bool focused = GUI.GetNameOfFocusedControl() == controlName;
             bool enterHit = focused && _editing[i] &&
                 Event.current.type == EventType.KeyDown &&
@@ -288,7 +303,7 @@ namespace HeelsSettings
 
         private void ApplyPreview(int i)
         {
-            if (_abmx == null) return;
+            if (_ctrl == null || _abmx == null) return;
             ref var def = ref Entries[i];
             int coord = _ctrl.ActiveCoordinate;
 
@@ -296,17 +311,17 @@ namespace HeelsSettings
             {
                 if (def.IsRotation)
                 {
-                    SetRotX(_abmx, HeelsController.PairedBoneL(def.CoordIndex), coord, _values[i]);
-                    SetRotX(_abmx, HeelsController.PairedBoneR(def.CoordIndex), coord, _values[i]);
+                    HeelsController.SetRotationX(_abmx, HeelsController.PairedBoneL(def.CoordIndex), coord, _values[i]);
+                    HeelsController.SetRotationX(_abmx, HeelsController.PairedBoneR(def.CoordIndex), coord, _values[i]);
                 }
                 else
                 {
-                    SetPosY(_abmx, "cf_n_height", coord, _values[i] + _values[4]);
+                    HeelsController.SetPositionY(_abmx, HeelsController.HeightBone, coord, _values[i] + _values[4]);
                 }
             }
             else
             {
-                SetPosY(_abmx, "cf_n_height", coord, _values[3] + _values[4]);
+                HeelsController.SetPositionY(_abmx, HeelsController.HeightBone, coord, _values[3] + _values[4]);
             }
 
             _abmx.NeedsBaselineUpdate = true;
@@ -318,45 +333,13 @@ namespace HeelsSettings
                 ApplyPreview(i);
         }
 
-        private static void SetRotX(BoneController abmx, string bone, int coord, float val)
-        {
-            var mod = EnsureMod(abmx, bone);
-            if (mod == null) return;
-            var d = GetData(mod, coord);
-            if (d != null)
-                d.RotationModifier = new Vector3(val, d.RotationModifier.y, d.RotationModifier.z);
-        }
-
-        private static void SetPosY(BoneController abmx, string bone, int coord, float val)
-        {
-            var mod = EnsureMod(abmx, bone);
-            if (mod == null) return;
-            var d = GetData(mod, coord);
-            if (d != null)
-                d.PositionModifier = new Vector3(d.PositionModifier.x, val, d.PositionModifier.z);
-        }
-
-        private static BoneModifier EnsureMod(BoneController abmx, string bone)
-        {
-            var m = abmx.GetModifier(bone);
-            if (m == null) { abmx.AddModifier(new BoneModifier(bone)); m = abmx.GetModifier(bone); }
-            return m;
-        }
-
-        private static BoneModifierData GetData(BoneModifier mod, int coord)
-        {
-            var c = mod?.CoordinateModifiers;
-            if (c == null || c.Length == 0) return null;
-            if (mod.IsCoordinateSpecific() && coord >= 0 && coord < c.Length) return c[coord];
-            return c[0];
-        }
-
         // ---- Read / Save ----
 
         private void ReadCurrentValues()
         {
             if (_ctrl == null) return;
             int coord = _ctrl.ActiveCoordinate;
+            _displayedCoordinate = coord;
             var vals = _ctrl.GetCoordValues(coord);
             for (int i = 0; i < 4; i++)
             {
@@ -433,6 +416,14 @@ namespace HeelsSettings
         private static string FormatValue(float v, bool isRotation) =>
             isRotation ? v.ToString("F1", CultureInfo.InvariantCulture)
                        : v.ToString("F3", CultureInfo.InvariantCulture);
+
+        private static string[] BuildControlNames()
+        {
+            var names = new string[Entries.Length];
+            for (int i = 0; i < names.Length; i++)
+                names[i] = "hsTF" + i;
+            return names;
+        }
 
         private struct EntryDef
         {

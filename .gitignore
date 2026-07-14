@@ -1,6 +1,7 @@
 bin/
 obj/
-dlls/
+/dlls
+/artifacts
 *.user
 *.suo
 .vs/
