@@ -149,7 +149,13 @@ namespace HeelsSettings
             if (_displayedCoordinate != _ctrl.ActiveCoordinate)
                 ReadCurrentValues();
 
-            for (int i = 0; i < Entries.Length; i++)
+            DrawEntry(4);
+
+            GUILayout.Space(4);
+            GUILayout.Box(GUIContent.none, GUILayout.ExpandWidth(true), GUILayout.Height(1));
+            GUILayout.Space(4);
+
+            for (int i = 0; i < 4; i++)
                 DrawEntry(i);
 
             GUILayout.Space(6);
@@ -324,7 +330,6 @@ namespace HeelsSettings
                 HeelsController.SetPositionY(_abmx, HeelsController.HeightBone, coord, _values[3] + _values[4]);
             }
 
-            _abmx.NeedsBaselineUpdate = true;
         }
 
         private void ApplyAllPreviews()

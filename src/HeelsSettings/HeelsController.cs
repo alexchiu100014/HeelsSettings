@@ -357,7 +357,8 @@ namespace HeelsSettings
         {
             if (!TriggerEnabled || !HeelsPlugin.GlobalEnabled)
             {
-                if (_shoesWorn) { _shoesWorn = false; ClearFromABMX(); }
+                _shoesWorn = false;
+                ClearFromABMX();
                 return;
             }
 
@@ -404,7 +405,6 @@ namespace HeelsSettings
             }
 
             SetPositionY(abmx, HeightBone, coord, vals[3] + GlobalHeight);
-            abmx.NeedsBaselineUpdate = true;
         }
 
         internal void ClearFromABMX()
@@ -421,7 +421,6 @@ namespace HeelsSettings
             }
 
             SetPositionY(abmx, HeightBone, coord, GlobalHeight);
-            abmx.NeedsBaselineUpdate = true;
         }
 
         // ---- ABMX helpers ----

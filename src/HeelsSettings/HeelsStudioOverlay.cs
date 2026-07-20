@@ -183,15 +183,23 @@ namespace HeelsSettings
         {
             HeelsPlugin.GlobalEnabled = active;
 
-            foreach (var pair in CharacterEnabled.ToList())
-            {
-                var ctrl = HeelsPlugin.GetController(pair.Key.charInfo);
-                if (ctrl == null) continue;
+            var studioCharacters = global::Studio.Studio.Instance?.dicInfo?.Values
+                .OfType<OCIChar>()
+                .Distinct()
+                .ToList();
 
-                if (active)
-                    ctrl.RefreshShoeState();
-                else
-                    ctrl.ClearFromABMX();
+            if (studioCharacters != null)
+            {
+                foreach (var oci in studioCharacters)
+                {
+                    var ctrl = HeelsPlugin.GetController(oci.charInfo);
+                    if (ctrl == null) continue;
+
+                    if (active)
+                        ctrl.RefreshShoeState();
+                    else
+                        ctrl.ClearFromABMX();
+                }
             }
 
             foreach (var pair in _toggleObjects)
