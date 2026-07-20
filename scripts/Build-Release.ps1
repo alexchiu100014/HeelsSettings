@@ -60,12 +60,12 @@ $projects = @(
 foreach ($entry in $projects) {
     $projectPath = Join-Path $repoRoot $entry.Project
     if (-not $NoRestore) {
-        & dotnet restore $projectPath "-p:ReferenceRoot=$ReferenceRoot"
+        & dotnet restore $projectPath "-p:ReferenceRoot=$ReferenceRoot" "-bl:{}"
         if ($LASTEXITCODE -ne 0) { throw "Restore failed for $($entry.Name)." }
     }
 
     & dotnet build $projectPath --configuration Release --no-restore --no-incremental `
-        "-p:ReferenceRoot=$ReferenceRoot" "-p:TreatWarningsAsErrors=true"
+        "-p:ReferenceRoot=$ReferenceRoot" "-p:TreatWarningsAsErrors=true" "-bl:{}"
     if ($LASTEXITCODE -ne 0) { throw "Build failed for $($entry.Name)." }
 
     if ($entry.Name -eq "KK_HeelsSettings") {

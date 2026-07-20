@@ -77,9 +77,5 @@
       <HintPath>$(ReferenceRoot)\kks\plugins\KKS_BepisPlugins\KKS_ExtensibleSaveFormat.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="MessagePack">
-      <HintPath>$(ReferenceRoot)\kks\KoikatsuSunshine_Data\Managed\MessagePack.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
   </ItemGroup>
 </Project>

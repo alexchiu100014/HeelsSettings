@@ -27,7 +27,7 @@ namespace HeelsSettings
         private const string ABMXStateSyncGUID = "unknown.kk.abmxstatesync";
 #endif
         public const string PluginName = "HeelsSettings";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
         public const string ExtDataKey = "HeelsSettings";
 
         internal new static ManualLogSource Logger;

@@ -53,9 +53,5 @@
       <HintPath>$(ReferenceRoot)\kk\ExtensibleSaveFormat.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="MessagePack">
-      <HintPath>$(ReferenceRoot)\kk\MessagePack.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
   </ItemGroup>
 </Project>

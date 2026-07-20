@@ -4,5 +4,6 @@ obj/
 /artifacts
 *.user
 *.suo
+*.binlog
 .vs/
 /AGENTS.md
